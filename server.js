@@ -18,7 +18,7 @@ const teacherSchema = new db.Schema({
   profesion: String,
 });
 const teachersModel = db.model("teachers", teacherSchema);
-
+//first time add to a collection --WORKS--
 // teacherList = [
 //   {
 //     fullName: "tal",
@@ -45,48 +45,46 @@ const teachersModel = db.model("teachers", teacherSchema);
 
 // server routes
 //1.GET ALL TEACHERS
-app.get("/teachers", (req, res) => {
-  teachersModel
-    .find()
-    .then((students) => {
-      res.json({ msg: "success", students: students });
-    })
-    .catch(() => res.json({ msg: "fail" }));
+app.get("/teachers", async (req, res) => {
+  try {
+    const allTeachers = await teachersModel.find();
+    res.json(allTeachers);
+  } catch (error) {
+    res.json(error);
+  }
 });
 
 //2. POST lower than input
 app.post("/lowerThanInput", async (req, res) => {
-  console.log(req.body.value);
-  let teacherList = await teachersModel.find();
-  let newList = teacherList.filter(
-    (teacher) => teacher.salary < req.body.value
-  );
-  res.json(newList);
+  let teacherList = await teachersModel.find({
+    salary: { $gt: req.body.value },
+  });
+
+  res.json(teacherList);
 });
 
-//2. POST add teaTcher
+//3. POST add teacher
 app.post("/teacher", async (req, res) => {
-  let newTeacher = {
-    fullName: req.body.fullName,
-    id: req.body.teacherId,
-    salary: req.body.salary,
-    profesion: req.body.prof,
-  };
-
   let teacherList = await teachersModel.find();
+  let isOriginal = true;
   teacherList.map((teacher) => {
-    if (
-      teacher.fullName == req.body.fullName &&
-      teacher.profesion == req.body.prof
-    ) {
-      res.json("already EXISTS");
+    if (!isOriginal) {
       return;
     } else {
-      teachersModel.create(newTeacher);
-      res.json("added succesfully");
-      return;
+      if (
+        teacher.fullName == req.body.body.fullName &&
+        teacher.profesion == req.body.body.profesion
+      ) {
+        isOriginal = false;
+      } else {
+        isOriginal = true;
+      }
     }
   });
+  if (isOriginal) {
+    await teachersModel.create(req.body.body);
+  }
+  res.json(isOriginal ? "new user" : "already exist");
 });
 
 const port = 3000;

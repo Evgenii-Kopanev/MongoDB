@@ -8,17 +8,26 @@
     <!-- <link rel='stylesheet' type='text/css' media='screen' href='main.css'> -->
   </head>
   <body>
+    <button onclick="allTeachers()">GET all Teachers</button>
+    <hr />
     <input
       type="text"
       placeholder="Enter salary"
       id="myId"
-      oninput="getLowerThan()"
+      onchange="getLowerThan()"
     />
+    <hr />
     <input id="fullName" type="text" placeholder="FULL NAME" />
+    <br />
     <input id="id" type="number" placeholder="id" />
+    <br />
     <input id="salary" type="number" placeholder="salary" />
+    <br />
     <input id="prof" type="text" placeholder="proffesion" />
+    <br />
     <button onclick="addTeacher()">create</button>
-    <script src="main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script type="module" src="main.js"></script>
   </body>
 </html>
