@@ -1,0 +1,95 @@
+const express = require("express");
+const db = require("mongoose");
+const app = express();
+
+app.use(express.json());
+app.use(express.static("front"));
+
+//connection string - from mongoDB extension
+//dbname - whatever you want
+const dbURL =
+  "mongodb+srv://poniaka:mongozebra1914@cluster0.yh7hrm2.mongodb.net/teachersDb";
+db.connect(dbURL).then(() => console.log("DB connected"));
+
+const teacherSchema = new db.Schema({
+  fullName: String,
+  id: Number,
+  salary: Number,
+  profesion: String,
+});
+const teachersModel = db.model("teachers", teacherSchema);
+
+// teacherList = [
+//   {
+//     fullName: "tal",
+//     id: 123456,
+//     salary: 10000,
+//     profesion: "doctor",
+//   },
+//   {
+//     fullName: "gal",
+//     id: 456789,
+//     salary: 120000,
+//     profesion: "biology",
+//   },
+//   {
+//     fullName: "sara",
+//     id: 905158,
+//     salary: 8000,
+//     profesion: "history",
+//   },
+// ];
+// teacherList.map((teacher) => {
+//   teachersModel.create(teacher);
+// });
+
+// server routes
+//1.GET ALL TEACHERS
+app.get("/teachers", (req, res) => {
+  teachersModel
+    .find()
+    .then((students) => {
+      res.json({ msg: "success", students: students });
+    })
+    .catch(() => res.json({ msg: "fail" }));
+});
+
+//2. POST lower than input
+app.post("/lowerThanInput", async (req, res) => {
+  console.log(req.body.value);
+  let teacherList = await teachersModel.find();
+  let newList = teacherList.filter(
+    (teacher) => teacher.salary < req.body.value
+  );
+  res.json(newList);
+});
+
+//2. POST add teaTcher
+app.post("/teacher", async (req, res) => {
+  let newTeacher = {
+    fullName: req.body.fullName,
+    id: req.body.teacherId,
+    salary: req.body.salary,
+    profesion: req.body.prof,
+  };
+
+  let teacherList = await teachersModel.find();
+  teacherList.map((teacher) => {
+    if (
+      teacher.fullName == req.body.fullName &&
+      teacher.profesion == req.body.prof
+    ) {
+      res.json("already EXISTS");
+      return;
+    } else {
+      teachersModel.create(newTeacher);
+      res.json("added succesfully");
+      return;
+    }
+  });
+});
+
+const port = 3000;
+app.listen(port, () => {
+  console.log("listening on port localhost:" + port);
+});
